@@ -1,12 +1,38 @@
+import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
-import { getAuth } from "@/lib/auth";
+import { auth } from "@clerk/nextjs/server";
+import { db } from "@/lib/db/index";
+import { user as userTable } from "@/lib/db/schema";
 import { getOnboardingStatus } from "@/lib/onboarding";
 
-export default async function Page() {
-  const session = await getAuth();
-  if (!session?.user) return null;
+export const dynamic = "force-dynamic";
 
-  const status = await getOnboardingStatus(session.user.id);
+export default async function Page() {
+  const { userId } = await auth();
+  if (!userId) return null;
+
+  // Get DB user by Clerk email — bypass auth cache entirely
+  const { currentUser } = await import("@clerk/nextjs/server");
+  const clerkUser = await currentUser();
+  const email = clerkUser?.emailAddresses?.[0]?.emailAddress;
+  if (!email) return null;
+
+  // Find or create user
+  let [dbUser] = await db
+    .select({ id: userTable.id })
+    .from(userTable)
+    .where(eq(userTable.email, email))
+    .limit(1);
+
+  if (!dbUser) {
+    const [created] = await db
+      .insert(userTable)
+      .values({ email, password: null })
+      .returning({ id: userTable.id });
+    dbUser = created;
+  }
+
+  const status = await getOnboardingStatus(dbUser.id);
 
   if (!status.complete) {
     redirect("/onboarding");
@@ -16,6 +42,5 @@ export default async function Page() {
     redirect("/staff/dashboard");
   }
 
-  // Student with completed onboarding — render chat
   return null;
 }
