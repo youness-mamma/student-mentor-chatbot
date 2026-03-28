@@ -1,12 +1,15 @@
 import { cookies } from "next/headers";
+import { eq } from "drizzle-orm";
 import { Suspense } from "react";
 import { Toaster } from "sonner";
+import { currentUser } from "@clerk/nextjs/server";
 import { AppSidebar } from "@/components/chat/app-sidebar";
 import { DataStreamProvider } from "@/components/chat/data-stream-provider";
 import { ChatShell } from "@/components/chat/shell";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { ActiveChatProvider } from "@/hooks/use-active-chat";
-import { getAuth } from "@/lib/auth";
+import { db } from "@/lib/db/index";
+import { user as userTable } from "@/lib/db/schema";
 
 const toasterProps = {
   position: "top-center" as const,
@@ -26,11 +29,23 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 }
 
 async function LayoutContent({ children }: { children: React.ReactNode }) {
-  const [session, cookieStore] = await Promise.all([getAuth(), cookies()]);
+  const [clerkUser, cookieStore] = await Promise.all([
+    currentUser(),
+    cookies(),
+  ]);
 
-  if (!session?.user) return <>{children}</>;
+  if (!clerkUser) return <>{children}</>;
 
-  const { role } = session.user;
+  const email = clerkUser.emailAddresses?.[0]?.emailAddress ?? "";
+
+  // Query DB directly for fresh role — no cache
+  const [dbUser] = await db
+    .select({ id: userTable.id, role: userTable.role })
+    .from(userTable)
+    .where(eq(userTable.email, email))
+    .limit(1);
+
+  const role = dbUser?.role;
 
   // No role yet or staff — render without chat sidebar
   if (!role || role === "staff") {
@@ -46,10 +61,10 @@ async function LayoutContent({ children }: { children: React.ReactNode }) {
   const isCollapsed = cookieStore.get("sidebar_state")?.value !== "true";
 
   const user = {
-    id: session.user.id,
-    email: session.user.email,
-    name: null as string | null,
-    image: null as string | null,
+    id: dbUser.id,
+    email,
+    name: clerkUser.fullName,
+    image: clerkUser.imageUrl,
   };
 
   return (

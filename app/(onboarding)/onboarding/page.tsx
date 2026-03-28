@@ -1,5 +1,6 @@
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { db } from "@/lib/db/index";
 import { user as userTable } from "@/lib/db/schema";
@@ -7,9 +8,8 @@ import { getOnboardingStatus } from "@/lib/onboarding";
 import { ChooseRole } from "./choose-role";
 import { StaffProfileForm } from "./staff-profile-form";
 
-export const dynamic = "force-dynamic";
-
 export default async function OnboardingPage() {
+  await connection();
   const { userId } = await auth();
   if (!userId) redirect("/login");
 

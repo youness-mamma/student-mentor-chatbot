@@ -1,13 +1,13 @@
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/db/index";
 import { user as userTable } from "@/lib/db/schema";
 import { getOnboardingStatus } from "@/lib/onboarding";
 
-export const dynamic = "force-dynamic";
-
 export default async function Page() {
+  await connection();
   const { userId } = await auth();
   if (!userId) return null;
 
