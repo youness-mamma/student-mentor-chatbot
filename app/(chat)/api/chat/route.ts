@@ -7,10 +7,10 @@ import {
   stepCountIs,
   streamText,
 } from "ai";
-import { checkBotId } from "botid/server";
+
 import { after } from "next/server";
 import { createResumableStreamContext } from "resumable-stream";
-import { auth, type UserType } from "@/app/(auth)/auth";
+import { getAuth } from "@/lib/auth";
 import { entitlementsByUserType } from "@/lib/ai/entitlements";
 import {
   allowedModelIds,
@@ -25,6 +25,12 @@ import { editDocument } from "@/lib/ai/tools/edit-document";
 import { getWeather } from "@/lib/ai/tools/get-weather";
 import { requestSuggestions } from "@/lib/ai/tools/request-suggestions";
 import { updateDocument } from "@/lib/ai/tools/update-document";
+import { bookAppointment } from "@/lib/ai/tools/book-appointment";
+import { findStaff } from "@/lib/ai/tools/find-staff";
+import { getStaffAvailability } from "@/lib/ai/tools/get-staff-availability";
+import { listEvents } from "@/lib/ai/tools/list-events";
+import { rescheduleMeeting } from "@/lib/ai/tools/reschedule-meeting";
+import { scheduleMeeting } from "@/lib/ai/tools/schedule-meeting";
 import { isProductionEnvironment } from "@/lib/constants";
 import {
   createStreamId,
@@ -71,10 +77,7 @@ export async function POST(request: Request) {
     const { id, message, messages, selectedChatModel, selectedVisibilityType } =
       requestBody;
 
-    const [, session] = await Promise.all([
-      checkBotId().catch(() => null),
-      auth(),
-    ]);
+    const session = await getAuth();
 
     if (!session?.user) {
       return new ChatbotError("unauthorized:chat").toResponse();
@@ -86,14 +89,12 @@ export async function POST(request: Request) {
 
     await checkIpRateLimit(ipAddress(request));
 
-    const userType: UserType = session.user.type;
-
     const messageCount = await getMessageCountByUserId({
       id: session.user.id,
       differenceInHours: 1,
     });
 
-    if (messageCount > entitlementsByUserType[userType].maxMessagesPerHour) {
+    if (messageCount > entitlementsByUserType.regular.maxMessagesPerHour) {
       return new ChatbotError("rate_limit:chat").toResponse();
     }
 
@@ -205,6 +206,12 @@ export async function POST(request: Request) {
                   "editDocument",
                   "updateDocument",
                   "requestSuggestions",
+                  "scheduleMeeting",
+                  "listEvents",
+                  "rescheduleMeeting",
+                  "findStaff",
+                  "getStaffAvailability",
+                  "bookAppointment",
                 ],
           providerOptions: {
             ...(modelConfig?.gatewayOrder && {
@@ -232,6 +239,12 @@ export async function POST(request: Request) {
               dataStream,
               modelId: chatModel,
             }),
+            scheduleMeeting: scheduleMeeting({ session }),
+            listEvents: listEvents({ session }),
+            rescheduleMeeting: rescheduleMeeting({ session }),
+            findStaff: findStaff(),
+            getStaffAvailability: getStaffAvailability(),
+            bookAppointment: bookAppointment({ session }),
           },
           experimental_telemetry: {
             isEnabled: isProductionEnvironment,
@@ -350,7 +363,7 @@ export async function DELETE(request: Request) {
     return new ChatbotError("bad_request:api").toResponse();
   }
 
-  const session = await auth();
+  const session = await getAuth();
 
   if (!session?.user) {
     return new ChatbotError("unauthorized:chat").toResponse();

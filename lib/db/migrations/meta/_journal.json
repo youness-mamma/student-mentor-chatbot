@@ -8,6 +8,34 @@
       "when": 1710000000000,
       "tag": "0000_initial",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1774624254549,
+      "tag": "0001_tough_george_stacy",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1774627461274,
+      "tag": "0002_numerous_golden_guardian",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1774639519961,
+      "tag": "0003_volatile_hiroim",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1774653904911,
+      "tag": "0004_foamy_wallow",
+      "breakpoints": true
     }
   ]
 }

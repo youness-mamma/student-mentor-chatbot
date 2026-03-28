@@ -1,6 +1,10 @@
-import { customProvider, gateway } from "ai";
+import { customProvider } from "ai";
+import { createMistral } from "@ai-sdk/mistral";
 import { isTestEnvironment } from "../constants";
-import { titleModel } from "./models";
+
+const mistral = createMistral({
+  apiKey: process.env.MISTRAL_API_KEY,
+});
 
 export const myProvider = isTestEnvironment
   ? (() => {
@@ -19,12 +23,12 @@ export function getLanguageModel(modelId: string) {
     return myProvider.languageModel(modelId);
   }
 
-  return gateway.languageModel(modelId);
+  return mistral(modelId);
 }
 
 export function getTitleModel() {
   if (isTestEnvironment && myProvider) {
     return myProvider.languageModel("title-model");
   }
-  return gateway.languageModel(titleModel.id);
+  return mistral("mistral-tiny-latest");
 }

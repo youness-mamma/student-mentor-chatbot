@@ -4,12 +4,12 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 import "./globals.css";
-import { SessionProvider } from "next-auth/react";
+import { ClerkProvider } from "@clerk/nextjs";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://chat.vercel.ai"),
-  title: "Next.js Chatbot Template",
-  description: "Next.js chatbot template using the AI SDK.",
+  title: "Chatbot Assistant",
+  description: "Chatbot Assistant powered by AI.",
 };
 
 export const viewport = {
@@ -74,11 +74,9 @@ export default function RootLayout({
           disableTransitionOnChange
           enableSystem
         >
-          <SessionProvider
-            basePath={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/auth`}
-          >
+          <ClerkProvider>
             <TooltipProvider>{children}</TooltipProvider>
-          </SessionProvider>
+          </ClerkProvider>
         </ThemeProvider>
       </body>
     </html>

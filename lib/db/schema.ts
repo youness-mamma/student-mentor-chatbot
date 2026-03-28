@@ -19,6 +19,7 @@ export const user = pgTable("User", {
   emailVerified: boolean("emailVerified").notNull().default(false),
   image: text("image"),
   isAnonymous: boolean("isAnonymous").notNull().default(false),
+  role: varchar("role", { enum: ["student", "staff"] }),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
   updatedAt: timestamp("updatedAt").notNull().defaultNow(),
 });
@@ -134,3 +135,45 @@ export const stream = pgTable(
 );
 
 export type Stream = InferSelectModel<typeof stream>;
+
+export const googleToken = pgTable("GoogleToken", {
+  id: uuid("id").primaryKey().notNull().defaultRandom(),
+  userId: uuid("userId")
+    .notNull()
+    .references(() => user.id)
+    .unique(),
+  accessToken: text("accessToken").notNull(),
+  refreshToken: text("refreshToken").notNull(),
+  expiresAt: timestamp("expiresAt").notNull(),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+});
+
+export type GoogleToken = InferSelectModel<typeof googleToken>;
+
+export const staff = pgTable("Staff", {
+  id: uuid("id").primaryKey().notNull().defaultRandom(),
+  userId: uuid("userId").references(() => user.id),
+  name: text("name").notNull(),
+  email: varchar("email", { length: 128 }).notNull().unique(),
+  role: text("role").notNull(),
+  category: varchar("category", {
+    enum: ["academic", "psychological", "administrative", "career"],
+  }).notNull(),
+  contactMethod: varchar("contactMethod", {
+    enum: ["in-person", "video-call", "messaging"],
+  })
+    .notNull()
+    .default("video-call"),
+  department: text("department"),
+  bio: text("bio"),
+  language: varchar("language", { length: 10 }).default("en"),
+  googleAccessToken: text("googleAccessToken"),
+  googleRefreshToken: text("googleRefreshToken"),
+  googleTokenExpiresAt: timestamp("googleTokenExpiresAt"),
+  isActive: boolean("isActive").notNull().default(true),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+});
+
+export type Staff = InferSelectModel<typeof staff>;

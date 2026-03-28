@@ -1,18 +1,17 @@
-import Form from "next/form";
+"use client";
 
-import { signOut } from "@/app/(auth)/auth";
+import { useClerk } from "@clerk/nextjs";
 
 export const SignOutForm = () => {
-  return (
-    <Form
-      action={async () => {
-        "use server";
+  const { signOut } = useClerk();
 
-        await signOut({
-          redirectTo: "/",
-        });
-      }}
+  return (
+    <form
       className="w-full"
+      onSubmit={(e) => {
+        e.preventDefault();
+        signOut({ redirectUrl: "/" });
+      }}
     >
       <button
         className="w-full px-1 py-0.5 text-left text-red-500"
@@ -20,6 +19,6 @@ export const SignOutForm = () => {
       >
         Sign out
       </button>
-    </Form>
+    </form>
   );
 };
