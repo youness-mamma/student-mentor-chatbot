@@ -22,6 +22,18 @@ export const chatModels: ChatModel[] = [
     provider: "mistral",
     description: "Fast and lightweight Mistral model",
   },
+  {
+    id: "magistral-small-latest",
+    name: "Magistral Small",
+    provider: "mistral",
+    description: "Balanced reasoning model by Mistral",
+  },
+  {
+    id: "magistral-medium-latest",
+    name: "Magistral Medium",
+    provider: "mistral",
+    description: "Advanced reasoning model by Mistral",
+  },
 ];
 
 export async function getCapabilities(): Promise<
