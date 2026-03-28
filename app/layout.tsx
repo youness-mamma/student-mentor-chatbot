@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -75,7 +76,9 @@ export default function RootLayout({
           enableSystem
         >
           <ClerkProvider>
-            <TooltipProvider>{children}</TooltipProvider>
+            <TooltipProvider>
+              <Suspense>{children}</Suspense>
+            </TooltipProvider>
           </ClerkProvider>
         </ThemeProvider>
       </body>
