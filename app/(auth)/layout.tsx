@@ -1,8 +1,5 @@
-import { ArrowLeftIcon } from "lucide-react";
-import Link from "next/link";
+import { GraduationCapIcon } from "lucide-react";
 import { Suspense } from "react";
-import { SparklesIcon, VercelIcon } from "@/components/chat/icons";
-import { Preview } from "@/components/chat/preview";
 
 export default function AuthLayout({
   children,
@@ -10,29 +7,22 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex h-dvh w-screen bg-sidebar">
-      <div className="flex w-full flex-col bg-background p-8 xl:w-[600px] xl:shrink-0 xl:rounded-r-2xl xl:border-r xl:border-border/40 md:p-16">
-        <Link
-          className="flex w-fit items-center gap-1.5 text-[13px] text-muted-foreground transition-colors hover:text-foreground"
-          href="/"
-        >
-          <ArrowLeftIcon className="size-3.5" />
-          Back
-        </Link>
-        <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center gap-10">
-          <div className="flex flex-col gap-2">
-            <div className="mb-2 flex size-9 items-center justify-center rounded-lg bg-muted/60 text-muted-foreground ring-1 ring-border/50">
-              <SparklesIcon size={14} />
-            </div>
-            <Suspense>{children}</Suspense>
+    <div className="flex min-h-dvh items-center justify-center bg-background px-4">
+      <div className="mx-auto w-full max-w-md">
+        <div className="mb-8 flex flex-col items-center gap-3">
+          <div className="flex size-11 items-center justify-center rounded-xl bg-primary">
+            <GraduationCapIcon className="size-5.5 text-primary-foreground" />
+          </div>
+          <div className="text-center">
+            <h1 className="text-lg font-semibold tracking-tight">
+              Student Assistant
+            </h1>
+            <p className="mt-1 text-[13px] text-muted-foreground">
+              Sign in to your account to continue
+            </p>
           </div>
         </div>
-      </div>
-
-      <div className="hidden flex-1 flex-col overflow-hidden pl-12 xl:flex">
-        <div className="flex-1 pt-8">
-          <Preview />
-        </div>
+        <Suspense>{children}</Suspense>
       </div>
     </div>
   );
