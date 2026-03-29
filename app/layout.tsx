@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://chat.vercel.ai"),
@@ -80,6 +81,7 @@ export default function RootLayout({
               <Suspense>{children}</Suspense>
             </TooltipProvider>
           </ClerkProvider>
+          <SpeedInsights />
         </ThemeProvider>
       </body>
     </html>
