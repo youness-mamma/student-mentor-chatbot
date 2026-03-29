@@ -7,8 +7,8 @@ export const isTestEnvironment = Boolean(
 );
 
 export const suggestions = [
-  "I'm feeling overwhelmed with my studies, how can I manage stress?",
-  "Help me create a study plan for my upcoming exams",
-  "What career paths are available with a computer science degree?",
-  "How do I prepare for a job interview as a student?",
+  "I've been feeling really stressed about my exams lately",
+  "I need help understanding a topic in my course",
+  "I'm not sure what career path I should follow",
+  "I have a problem with my enrollment or documents",
 ];
