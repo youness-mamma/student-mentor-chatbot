@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { db } from "@/lib/db/index";
 import { user as userTable } from "@/lib/db/schema";
 import { getOnboardingStatus } from "@/lib/onboarding";
@@ -9,15 +9,12 @@ import { getOnboardingStatus } from "@/lib/onboarding";
 export default async function Page() {
   await connection();
   const { userId } = await auth();
-  if (!userId) return null;
+  if (!userId) redirect("/login");
 
-  // Get DB user by Clerk email — bypass auth cache entirely
-  const { currentUser } = await import("@clerk/nextjs/server");
   const clerkUser = await currentUser();
   const email = clerkUser?.emailAddresses?.[0]?.emailAddress;
-  if (!email) return null;
+  if (!email) redirect("/login");
 
-  // Find or create user
   let [dbUser] = await db
     .select({ id: userTable.id })
     .from(userTable)
